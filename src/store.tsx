@@ -59,8 +59,6 @@ interface AppContextValue extends AppState {
   removeModuleRow: (moduleIndex: number, rowIndex: number) => void;
   getPreviewText: () => string;
   resolveConflict: (action: "server" | "local") => void;
-  importLocalData: () => void;
-  localDataAvailable: boolean;
   guestMode: boolean;
 }
 
@@ -109,7 +107,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [toast, setToast] = useState<ToastState>({ message: "", visible: false });
   const [loading, setLoading] = useState(!isGuest);
   const [conflictInfo, setConflictInfo] = useState<{ templateId: string; message: string } | null>(null);
-  const [localDataAvailable] = useState(() => isGuest ? false : !!loadData());
 
   const showToast = useCallback((message: string) => {
     setToast({ message, visible: true });
@@ -176,12 +173,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
       try {
         const apiTemplates = await api.get<ApiTemplate[]>("/api/templates");
         const templates = apiTemplates.map(apiTemplateToLocal);
-        setData((prev) => ({
-          ...prev,
-          Templates: templates,
-          ActiveTemplateId: prev.ActiveTemplateId && templates.some((t) => t.Id === prev.ActiveTemplateId)
-            ? prev.ActiveTemplateId : templates[0]?.Id || "",
-        }));
+        setData((prev) => {
+          const autosaves = { ...prev.Autosaves };
+          for (const t of templates) {
+            if (!autosaves[t.Id]) autosaves[t.Id] = createBlankFormData(t);
+          }
+          return {
+            ...prev,
+            Templates: templates,
+            Autosaves: autosaves,
+            ActiveTemplateId: prev.ActiveTemplateId && templates.some((t) => t.Id === prev.ActiveTemplateId)
+              ? prev.ActiveTemplateId : templates[0]?.Id || "",
+          };
+        });
         setSelectedTemplateId((prev) => templates.some((t) => t.Id === prev) ? prev : templates[0]?.Id || "");
       } catch {}
     };
@@ -229,6 +233,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setData((prev) => {
       const t = getActiveTemplate(prev);
       const a = { ...prev.Autosaves };
+      if (!a[t.Id]) a[t.Id] = createBlankFormData(t);
       a[t.Id] = { ...a[t.Id], Title: title };
       return { ...prev, Autosaves: a };
     });
@@ -238,6 +243,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setData((prev) => {
       const t = getActiveTemplate(prev);
       const a = { ...prev.Autosaves };
+      if (!a[t.Id]) a[t.Id] = createBlankFormData(t);
       a[t.Id] = { ...a[t.Id], IncludeTitle: include };
       return { ...prev, Autosaves: a };
     });
@@ -247,6 +253,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setData((prev) => {
       const t = getActiveTemplate(prev);
       const a = { ...prev.Autosaves };
+      if (!a[t.Id]) a[t.Id] = createBlankFormData(t);
       const v = { ...a[t.Id].Values };
       v[moduleId] = { ...v[moduleId], Text: text };
       a[t.Id] = { ...a[t.Id], Values: v };
@@ -258,6 +265,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setData((prev) => {
       const t = getActiveTemplate(prev);
       const a = { ...prev.Autosaves };
+      if (!a[t.Id]) a[t.Id] = createBlankFormData(t);
       const v = { ...a[t.Id].Values };
       const r = { ...(v[moduleId]?.Rows || {}) };
       r[label] = value;
@@ -518,28 +526,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setConflictInfo(null);
   }, [conflictInfo]);
 
-  const importLocalData = useCallback(() => {
-    const localData = loadData();
-    if (!localData) { showToast("Keine lokalen Daten gefunden."); return; }
-    for (const t of localData.Templates) {
-      if (!data.Templates.find((et) => et.Name === t.Name)) {
-        api.post("/api/templates", {
-          name: t.Name, title_template: t.TitleTemplate, header_text: t.Header,
-          document_heading: t.Heading, separator_line: t.Separator,
-          output_title_by_default: t.IncludeTitleByDefault,
-          modules: t.Modules.map((m) => ({
-            label: m.Label, field_type: m.Type, placeholder: m.Placeholder,
-            bullet_prefix: m.BulletPrefix, show_heading: m.RenderHeading,
-            rows_json: m.Rows.length > 0 ? JSON.stringify(m.Rows) : null,
-          })),
-        }).catch(() => {});
-      }
-    }
-
-    showToast("Lokale Daten werden importiert...");
-    setTimeout(() => window.location.reload(), 1500);
-  }, [data, showToast]);
-
   const value: AppContextValue = {
     data, activeView, selectedTemplateId, toast, loading, conflictInfo,
     setView, showToast, selectTemplate, setActiveTemplate,
@@ -549,7 +535,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     createTemplate, duplicateTemplate, deleteTemplate,
     addModule, removeModule, moveModule,
     updateTemplateMeta, updateModuleMeta, addRowToModule, updateModuleRow, removeModuleRow,
-    getPreviewText, resolveConflict, importLocalData, localDataAvailable,
+    getPreviewText, resolveConflict,
     guestMode: isGuest,
   };
 

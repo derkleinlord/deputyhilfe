@@ -6,7 +6,6 @@ import TemplatePage from "./components/TemplatePage";
 import UserManagement from "./components/UserManagement";
 import LoginPage from "./components/LoginPage";
 import Toast from "./components/Toast";
-import MigrationDialog from "./components/MigrationDialog";
 import "./App.css";
 
 function Content() {
@@ -41,7 +40,6 @@ function AppInner() {
         <Content />
         <Toast />
       </AppLayout>
-      <MigrationDialog />
       {conflictInfo && (
         <div className="conflict-overlay">
           <div className="conflict-dialog">
