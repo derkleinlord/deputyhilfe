@@ -11,6 +11,7 @@ import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import templateRoutes from "./routes/templates.js";
 import moduleRoutes from "./routes/modules.js";
+import aiRoutes from "./routes/ai.js";
 
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -32,6 +33,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/templates", templateRoutes);
 app.use("/api/templates", moduleRoutes);
+app.use("/api/ai", aiRoutes);
 
 
 // Serve frontend in production

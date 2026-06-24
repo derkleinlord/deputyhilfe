@@ -1,6 +1,9 @@
+import { useState } from "react";
 import type { Template, FormData } from "../types";
 import { moduleTypeMap } from "../types";
 import { useApp } from "../store";
+import { useAuth } from "../auth";
+import ProofreadPanel from "./ProofreadPanel";
 
 interface CaseFormProps {
   template: Template;
@@ -10,6 +13,20 @@ interface CaseFormProps {
 
 export default function CaseForm({ template, formData, onSelectTemplate }: CaseFormProps) {
   const { data, updateCaseTitle, updateIncludeTitle, updateModuleValue, updateKeyValueRow, clearCurrentForm } = useApp();
+  const { user } = useAuth();
+
+  const [proofreadTarget, setProofreadTarget] = useState<{
+    moduleId: string;
+    text: string;
+    label: string;
+  } | null>(null);
+
+  const handleProofreadAccept = (original: string, replacement: string) => {
+    if (!proofreadTarget) return;
+    const currentText = data.Autosaves[data.ActiveTemplateId]?.Values[proofreadTarget.moduleId]?.Text ?? "";
+    const newText = currentText.replace(original, replacement);
+    updateModuleValue(proofreadTarget.moduleId, newText);
+  };
 
   return (
     <div className="case-form-panel">
@@ -94,12 +111,32 @@ export default function CaseForm({ template, formData, onSelectTemplate }: CaseF
                   autoComplete="off"
                 />
               ) : (
-                <textarea
-                  rows={module.Type === "bullets" ? 4 : 6}
-                  value={value?.Text ?? ""}
-                  placeholder={module.Placeholder}
-                  onChange={(e) => updateModuleValue(module.Id, e.target.value)}
-                />
+                <div className="module-textarea-wrap">
+                  <textarea
+                    rows={module.Type === "bullets" ? 4 : 6}
+                    value={value?.Text ?? ""}
+                    placeholder={module.Placeholder}
+                    onChange={(e) => updateModuleValue(module.Id, e.target.value)}
+                  />
+                  {user && value?.Text && value.Text.length >= 20 && (
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-sm module-proofread-btn"
+                      onClick={() =>
+                        setProofreadTarget({
+                          moduleId: module.Id,
+                          text: value.Text,
+                          label: module.Label,
+                        })
+                      }
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                      </svg>
+                      Rechtschreibung & Grammatik prüfen
+                    </button>
+                  )}
+                </div>
               )}
             </div>
           );
@@ -111,6 +148,15 @@ export default function CaseForm({ template, formData, onSelectTemplate }: CaseF
           Formular leeren
         </button>
       </div>
+
+      {proofreadTarget && (
+        <ProofreadPanel
+          text={proofreadTarget.text}
+          moduleLabel={proofreadTarget.label}
+          onClose={() => setProofreadTarget(null)}
+          onAccept={handleProofreadAccept}
+        />
+      )}
     </div>
   );
 }

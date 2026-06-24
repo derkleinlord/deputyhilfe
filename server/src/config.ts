@@ -14,4 +14,9 @@ export const config = {
   },
   port: Number(process.env.PORT) || 3001,
   corsOrigin: process.env.CORS_ORIGIN || "http://localhost:5173",
+  ai: {
+    apiKey: process.env.AI_API_KEY || "",
+    model: process.env.AI_MODEL || "gpt-4o-mini",
+    baseUrl: process.env.AI_BASE_URL || "https://api.openai.com/v1",
+  },
 };

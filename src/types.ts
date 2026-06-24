@@ -87,6 +87,18 @@ export interface ApiTemplate {
   modules: ApiModule[];
 }
 
+export interface ProofreadSuggestion {
+  original: string;
+  replacement: string;
+  category: "Rechtschreibung" | "Grammatik" | "Zeichensetzung" | "Stil";
+  reason: string;
+  confidence: "safe" | "review";
+}
+
+export interface ProofreadResponse {
+  suggestions: ProofreadSuggestion[];
+}
+
 export interface ApiModule {
   id: number;
   template_id: number;

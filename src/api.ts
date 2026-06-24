@@ -28,10 +28,16 @@ async function request<T>(
     credentials: "include",
   });
 
-  const data = await res.json();
+  let data: unknown;
+  try {
+    data = await res.json();
+  } catch {
+    const text = await res.text().catch(() => "");
+    throw new Error(text || `HTTP ${res.status}`);
+  }
 
   if (!res.ok) {
-    throw new Error(data.error || `HTTP ${res.status}`);
+    throw new Error((data as Record<string, unknown>)?.error as string || `HTTP ${res.status}`);
   }
 
   return data as T;
@@ -59,4 +65,8 @@ export async function logoutApi(): Promise<void> {
 
 export async function getMeApi(): Promise<{ user: { userId: number; username: string; role: string } }> {
   return api.get("/api/auth/me");
+}
+
+export async function proofreadApi(text: string): Promise<import("./types").ProofreadResponse> {
+  return api.post("/api/ai/proofread", { text });
 }
