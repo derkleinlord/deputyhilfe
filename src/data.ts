@@ -30,26 +30,10 @@ export function normalizeAppData(data: AppData | null | undefined): AppData {
     SchemaVersion: CURRENT_SCHEMA_VERSION,
     Templates: Array.isArray(data?.Templates)
       ? data!.Templates.map((t) => normalizeTemplate(asRecord(t)))
-      : [createTatakteTemplate(), createAnzeigenTemplate(), createMahnungTemplate(), createGeschaeftspruefungTemplate(), createWochenberichtTemplate(), createAuslagenpruefungTemplate()],
+      : [],
     ActiveTemplateId: data?.ActiveTemplateId || "",
     Autosaves: data?.Autosaves && typeof data.Autosaves === "object" ? data.Autosaves as Record<string, FormData> : {},
   };
-
-  const defaultIds = ["tatakte", "anzeige", "mahnung", "geschaeftspruefung", "wochenbericht", "auslagenpruefung"];
-  const existingIds = new Set(normalized.Templates.map((t) => t.Id));
-  const defaultCreators: Record<string, () => Template> = {
-    tatakte: createTatakteTemplate,
-    anzeige: createAnzeigenTemplate,
-    mahnung: createMahnungTemplate,
-    geschaeftspruefung: createGeschaeftspruefungTemplate,
-    wochenbericht: createWochenberichtTemplate,
-    auslagenpruefung: createAuslagenpruefungTemplate
-  };
-  for (const id of defaultIds) {
-    if (!existingIds.has(id)) {
-      normalized.Templates.push(defaultCreators[id]());
-    }
-  }
 
   if (
     !normalized.ActiveTemplateId ||
@@ -78,6 +62,7 @@ export function normalizeTemplate(template: Record<string, unknown>): Template {
     Heading: String(template.Heading ?? template.heading ?? ""),
     Separator: String(template.Separator ?? template.separator ?? "------------------------------------------------"),
     IncludeTitleByDefault: Boolean(template.IncludeTitleByDefault ?? template.includeTitleByDefault),
+    SortOrder: Number(template.SortOrder ?? template.sortOrder ?? template.sort_order ?? 0),
     Modules: Array.isArray(template.Modules ?? template.modules)
       ? (template.Modules as unknown[] ?? template.modules as unknown[]).map((m: unknown) => normalizeModule(m as Record<string, unknown>))
       : []
@@ -160,192 +145,7 @@ export function createBlankFormData(template: Template): FormData {
   });
 }
 
-// --- Template Creation ---
 
-export function createTatakteTemplate(): Template {
-  return normalizeTemplate({
-    Id: "tatakte",
-    Name: "Tatakten Vorlage",
-    TitleTemplate: "[T] Straftat | Vor- Nachname (Täter) | TG:",
-    Header: "Sheriff-Department der Vereinigten Staaten von Amerika",
-    Heading: "Tatbestand",
-    Separator: "------------------------------------------------",
-    IncludeTitleByDefault: false,
-    Modules: [
-      textModule("tatzeitpunkt", "Tatzeitpunkt", "text", "TT.MM.1899 ca. HH:MM"),
-      textModule("tatort", "Tatort", "text", "z.B. Blackwater"),
-      textModule("geschaedigte", "Geschädigte", "multiline", "Vorname Nachname | TG"),
-      textModule("zeugen", "Zeugen", "multiline", "Vorname Nachname | TG"),
-      textModule("entwendete_gegenstaende", "Mutmaßlich entwendete Gegenstände", "multiline", "z.B. Waffe(n) [SN-0000]"),
-      textModule("tathergang", "Tathergang", "multiline", "Detaillierte und verständliche Beschreibung der ausgeführten Handlungen."),
-      keyValueModule("taeterbeschreibung", "Täterbeschreibung", [
-        "Mitglied einer Gruppierung",
-        "Kleidung (inkl. Details/Akzente)",
-        "Körperbau und Frisur",
-        "Akzent in der Stimme",
-        "Tatwaffe",
-        "Reittier"
-      ]),
-      { ...textModule("weitere_straftaten", "Weitere Straftaten", "bullets", "z.B. §1.1 Schwere Körperverletzung\nz.B. §9. Bedrohung") },
-      keyValueModule("sanktion", "Sanktion", [
-        { Label: "Bußgeld", Unit: "$" },
-        { Label: "Hafteinheiten", Unit: "HE" },
-        { Label: "Platzverweis", Unit: "" }
-      ], ""),
-      textModule("beschlagnahmungen", "Beschlagnahmungen", "multiline", "z.B. Waffe(n) [SN-0000]\nz.B. illegaler Gegenstand x 00"),
-      { ...keyValueModule("abnahme", "Abnahme und Abgabe", ["Abgenommen von", "Abgenommen am", "Abgegeben an", "Abgegeben am"], ""), RenderHeading: false },
-      textModule("notiz", "Notiz/Ergänzung", "multiline", "Zusätzliche Informationen"),
-      textModule("originalverfasser", "Originalverfasser", "text", "Vorname Nachname | TG")
-    ]
-  } as unknown as Record<string, unknown>);
-}
-
-export function createAnzeigenTemplate(): Template {
-  return normalizeTemplate({
-    Id: "anzeige",
-    Name: "Anzeigen Vorlage",
-    TitleTemplate: "[A] Straftat | Vor- Nachname (Täter) | TG:",
-    Header: "Sheriff-Department der Vereinigten Staaten von Amerika",
-    Heading: "Tatbestand",
-    Separator: "------------------------------------------------",
-    IncludeTitleByDefault: false,
-    Modules: [
-      textModule("tatzeitpunkt", "Tatzeitpunkt", "text", "TT.MM.JJJJ"),
-      textModule("tatort", "Tatort", "text", "z.B. Blackwater"),
-      textModule("geschaedigte", "Geschädigte", "multiline", "Vorname Nachname | TG"),
-      textModule("zeugen", "Zeugen", "multiline", "Vorname Nachname | TG\noder\nKeine (relevanten) Zeugen bekannt."),
-      textModule("entwendete_gegenstaende", "Mutmaßlich entwendete Gegenstände", "multiline", "z.B. Navy Revolver [SN-0000]"),
-      textModule("tathergang", "Tathergang", "multiline", "Detaillierte und verständliche Beschreibung der ausgeführten Handlungen. In einem zusammenhängenden Fließtext zu verfassen."),
-      keyValueModule("taeterbeschreibung", "Täterbeschreibung", [
-        "Mitglied einer Gruppierung",
-        "Kleidung (inkl. Details/Akzente)",
-        "Körperbau und Frisur",
-        "Akzent in der Stimme",
-        "Tatwaffe bekannt",
-        "Reittier"
-      ]),
-      { ...textModule("weitere_straftaten", "Weitere Straftaten", "bullets", "Sollte aus dem Tathergang ersichtlich werden.\nz.B. §1.1 Schwere Körperverletzung\nz.B. §9. Bedrohung") },
-      textModule("notiz", "Notiz/Ergänzung", "multiline", "Zusätzliche Informationen zu dem verbundenen Fall, besondere Erläuterungen, Erklärung, etc."),
-      textModule("originalverfasser", "Originalverfasser", "text", "Vorname Nachname | TG")
-    ]
-  } as unknown as Record<string, unknown>);
-}
-
-export function createMahnungTemplate(): Template {
-  return normalizeTemplate({
-    Id: "mahnung",
-    Name: "Mahnung Vorlage",
-    TitleTemplate: "[M] Tat | Vor- Nachname (Täter) | TG:",
-    Header: "Sheriff-Department der vereinigten Staaten von Amerika",
-    Heading: "Tatbestand",
-    Separator: "------------------------------------------------",
-    IncludeTitleByDefault: false,
-    Modules: [
-      textModule("tatzeitpunkt", "Tatzeitpunkt", "text", "TT.MM.JJJJ"),
-      textModule("tatort", "Tatort", "text", "z.B. Blackwater"),
-      textModule("tathergang", "Tathergang", "multiline", "Stichpunktartige Beschreibung des Tathergangs ist für Mahnungen ausreichend."),
-      textModule("sanktion", "Sanktion", "multiline", "Mündliche Verwarnung (sollte es auf ein Bußgeld hinauslaufen, dann ist eine Tatakte anzulegen)."),
-      textModule("notiz", "Notiz/Ergänzung", "multiline", "Zusätzliche Information zu verbundenem Fall, besondere Erläuterungen, Erklärung, etc."),
-      textModule("originalverfasser", "Originalverfasser", "text", "Vorname Nachname | TG")
-    ]
-  } as unknown as Record<string, unknown>);
-}
-
-export function createGeschaeftspruefungTemplate(): Template {
-  return normalizeTemplate({
-    Id: "geschaeftspruefung",
-    Name: "Geschäftsprüfung Vorlage",
-    TitleTemplate: "[GP] Unternehmen | Datum",
-    Header: "Sheriff-Department der Vereinigten Staaten von Amerika",
-    Heading: "Geschäftsprüfung",
-    Separator: "------------------------------------------------",
-    IncludeTitleByDefault: false,
-    Modules: [
-      textModule("unternehmen", "Unternehmen", "text", "bsp. Zum Golden Tropfen"),
-      textModule("pruefungsdatum", "Prüfungsdatum", "text", "TT.MM.JJJJ"),
-      textModule("genehmigt_von", "Genehmigt von", "text", "VORNAME NACHNAME RANG TG"),
-      textModule("anwesende_deputys", "Anwesende Deputys", "multiline", "VORNAME NACHNAME RANG TG"),
-      textModule("grund_pruefung", "Grund der Prüfung", "multiline", ""),
-      textModule("pruefender_deputy", "Prüfender Deputy", "text", "VORNAME NACHNAME RANG TG"),
-      textModule("dauer_pruefung", "Dauer der Prüfung", "text", ""),
-      textModule("lizenzen", "Lizenzen", "multiline", ""),
-      textModule("anwesende_mitarbeiter", "Anwesende Mitarbeiter", "multiline", "VORNAME NACHNAME"),
-      textModule("auffaelligkeiten", "Auffälligkeiten", "multiline", ""),
-      textModule("notiz", "Notiz/Ergänzung", "multiline", "Zusätzliche Information, besondere Erläuterungen, Erklärung, etc."),
-      textModule("originalverfasser", "Originalverfasser", "text", "Vorname Nachname TGNUMMER")
-    ]
-  } as unknown as Record<string, unknown>);
-}
-
-export function createWochenberichtTemplate(): Template {
-  return normalizeTemplate({
-    Id: "wochenbericht",
-    Name: "Wochenbericht Vorlage",
-    TitleTemplate: "[WB] Wochenbericht X | Bande",
-    Header: "Sheriff-Department der Vereinigten Staaten von Amerika\nDetective Unit",
-    Heading: "Wochenbericht",
-    Separator: "------------------------------------------------",
-    IncludeTitleByDefault: false,
-    Modules: [
-      textModule("zeitraum", "Zeitraum", "text", "KW X - TT.MM.JJJJ bis TT.MM.JJJJ"),
-      textModule("bande", "Bande", "text", "z.B. Dust Devils"),
-      textModule("zusammenfassung", "Zusammenfassung der aktuellen Woche", "multiline", "Kurze Zusammenfassung der Geschehnisse bzw. des Auftretens der Bande innerhalb des Zeitraumes."),
-      textModule("aktenvermerke", "Aktenvermerke", "multiline", "Vermerk zu ALLEN im Zeitraum geschriebenen Akten."),
-      { ...textModule("bedrohungslage", "Einschätzung der Bedrohungslage", "bullets", "- Sicherheitslage für die Bürger?\n- Sicherheitslage für die Beamten?") },
-      { ...textModule("berichte_aussenstehende", "Berichte von Außenstehenden", "bullets", "- Informationen / Aussagen von Unternehmen, Bürgermeistern etc. (alle außerhalb des Departments)") },
-      textModule("massnahmen", "Weitere einzuleitende Maßnahmen", "multiline", "Verstärkte Observierung? Verstärkte Kontrollen? Härteres durchgreifen?"),
-      textModule("sonstiges", "Sonstiges", "multiline", "Raum für Notizen."),
-      textModule("originalverfasser", "Originalverfasser & Ansprechpartner", "text", "Vorname Nachname | TG")
-    ]
-  } as unknown as Record<string, unknown>);
-}
-
-export function createAuslagenpruefungTemplate(): Template {
-  return normalizeTemplate({
-    Id: "auslagenpruefung",
-    Name: "Auslagenprüfung Vorlage",
-    TitleTemplate: "[AP] Name des Unternehmen",
-    Header: "Sheriff-Department der Vereinigten Staaten von Amerika,",
-    Heading: "Auslagenprüfung",
-    Separator: "------------------------------------------------",
-    IncludeTitleByDefault: false,
-    Modules: [
-      textModule("bereich", "Bereich", "text", "Bsp. New Austin"),
-      textModule("pruefungsdatum", "Prüfungsdatum", "text", "TT.MM.JJJJ"),
-      textModule("anwesende_deputys", "Anwesende Deputys", "multiline", "Vorname, Nachname, Rang, TG"),
-      textModule("unternehmen", "Überprüftes Unternehmen", "text", "Vollständiger Name des Unternehmen"),
-      textModule("lizenzen", "Lizenzen", "multiline", "Informationen zu den vorhandenen Lizenzen"),
-      textModule("auslage", "Auslage", "multiline", "Information zum Inhalt der Auslage"),
-      textModule("auffaelligkeiten", "Auffälligkeiten", "multiline", "Information zu Auffälligkeiten"),
-      textModule("notiz", "Notiz/Ergänzung", "multiline", "Zusätzliche Information, besondere Erläuterungen, Erklärung, etc."),
-      textModule("originalverfasser", "Originalverfasser", "text", "Vorname, Nachname TG")
-    ]
-  } as unknown as Record<string, unknown>);
-}
-
-function textModule(id: string, label: string, type: string, placeholder: string): Record<string, unknown> {
-  return {
-    Id: id,
-    Label: label,
-    Type: type,
-    Placeholder: placeholder,
-    Rows: [],
-    RenderHeading: true,
-    BulletPrefix: null
-  };
-}
-
-function keyValueModule(id: string, label: string, rows: (string | { Label: string; Unit: string })[], prefix = "-"): Record<string, unknown> {
-  return {
-    Id: id,
-    Label: label,
-    Type: "keyValues",
-    Placeholder: "",
-    Rows: rows.map((row) => typeof row === "string" ? { Label: row, Unit: "" } : row),
-    RenderHeading: true,
-    BulletPrefix: prefix
-  };
-}
 
 // --- Case Building ---
 

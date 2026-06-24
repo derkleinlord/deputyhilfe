@@ -13,6 +13,7 @@ export interface Template {
   Heading: string;
   Separator: string;
   IncludeTitleByDefault: boolean;
+  SortOrder: number;
   Modules: Module[];
 }
 
@@ -81,6 +82,7 @@ export interface ApiTemplate {
   document_heading: string | null;
   separator_line: string | null;
   output_title_by_default: number;
+  sort_order: number;
   created_by: number | null;
   created_at: string;
   updated_at: string;

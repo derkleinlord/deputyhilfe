@@ -1,9 +1,9 @@
-import { Plus, Copy, Trash2 } from "lucide-react";
+import { Plus, Copy, Trash2, ChevronUp, ChevronDown } from "lucide-react";
 import { useApp } from "../store";
 import { useAuth } from "../auth";
 
 export default function TemplateLibrary() {
-  const { data, selectedTemplateId, selectTemplate, createTemplate, duplicateTemplate, deleteTemplate } = useApp();
+  const { data, selectedTemplateId, selectTemplate, createTemplate, moveTemplate, duplicateTemplate, deleteTemplate } = useApp();
   const { isTemplateManager } = useAuth();
 
   return (
@@ -18,16 +18,39 @@ export default function TemplateLibrary() {
       </div>
 
       <div className="template-list-items">
-        {data.Templates.map((template) => (
-          <button
-            key={template.Id}
-            type="button"
-            className={`template-list-item${selectedTemplateId === template.Id ? " active" : ""}`}
-            onClick={() => selectTemplate(template.Id)}
-          >
-            <span className="template-list-item-name">{template.Name}</span>
-            <span className="template-list-item-meta">{template.Modules.length} Module</span>
-          </button>
+        {data.Templates.map((template, index) => (
+          <div key={template.Id} className={`template-list-item${selectedTemplateId === template.Id ? " active" : ""}`}>
+            <button
+              type="button"
+              className="template-list-item-btn"
+              onClick={() => selectTemplate(template.Id)}
+            >
+              <span className="template-list-item-name">{template.Name}</span>
+              <span className="template-list-item-meta">{template.Modules.length} Module</span>
+            </button>
+            {isTemplateManager && (
+              <div className="template-list-item-arrows">
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  onClick={(e) => { e.stopPropagation(); moveTemplate(index, -1); }}
+                  disabled={index === 0}
+                  title="Nach oben"
+                >
+                  <ChevronUp size={14} />
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  onClick={(e) => { e.stopPropagation(); moveTemplate(index, 1); }}
+                  disabled={index === data.Templates.length - 1}
+                  title="Nach unten"
+                >
+                  <ChevronDown size={14} />
+                </button>
+              </div>
+            )}
+          </div>
         ))}
       </div>
 

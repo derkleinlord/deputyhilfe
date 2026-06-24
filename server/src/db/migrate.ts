@@ -35,6 +35,7 @@ async function migrate() {
       document_heading VARCHAR(255) NULL,
       separator_line VARCHAR(255) NULL DEFAULT '------------------------------------------------',
       output_title_by_default TINYINT(1) NOT NULL DEFAULT 0,
+      sort_order INT NOT NULL DEFAULT 0,
       created_by INT NULL,
       created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

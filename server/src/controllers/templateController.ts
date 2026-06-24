@@ -61,6 +61,22 @@ export async function remove(req: Request, res: Response): Promise<void> {
   }
 }
 
+export async function reorder(req: Request, res: Response): Promise<void> {
+  try {
+    const { templateIds } = req.body;
+    if (!Array.isArray(templateIds)) {
+      res.status(400).json({ error: "templateIds Array erforderlich." });
+      return;
+    }
+    await templateService.reorderTemplates(templateIds);
+    const templates = await templateService.getAllTemplates();
+    emitTemplateEvent("template:updated", templates);
+    res.json(templates);
+  } catch (error) {
+    res.status(400).json({ error: (error as Error).message });
+  }
+}
+
 export async function duplicate(req: Request, res: Response): Promise<void> {
   try {
     const template = await templateService.duplicateTemplate(

@@ -47,6 +47,7 @@ interface AppContextValue extends AppState {
   copyOutput: () => void;
   downloadOutput: () => void;
   createTemplate: () => void;
+  moveTemplate: (index: number, direction: number) => void;
   duplicateTemplate: () => void;
   deleteTemplate: () => void;
   addModule: () => void;
@@ -89,6 +90,7 @@ function apiTemplateToLocal(t: ApiTemplate): Template {
     Heading: t.document_heading || "",
     Separator: t.separator_line || "------------------------------------------------",
     IncludeTitleByDefault: !!t.output_title_by_default,
+    SortOrder: t.sort_order,
     Modules: (t.modules || []).map(apiModuleToLocal),
   };
 }
@@ -349,6 +351,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch (err) { showToast(`Fehler: ${(err as Error).message}`); }
   }, [isGuest, showToast]);
 
+  const moveTemplate = useCallback(async (index: number, direction: number) => {
+    if (isGuest) { showToast("Bitte melden Sie sich an, um Vorlagen zu bearbeiten."); return; }
+    const target = index + direction;
+    if (target < 0 || target >= data.Templates.length) return;
+    const reordered = [...data.Templates];
+    const [moved] = reordered.splice(index, 1);
+    reordered.splice(target, 0, moved);
+    try {
+      await api.put("/api/templates/reorder", { templateIds: reordered.map((t) => Number(t.Id)) });
+      setData((prev) => ({ ...prev, Templates: reordered }));
+    } catch (err) { showToast(`Fehler: ${(err as Error).message}`); }
+  }, [isGuest, data, showToast]);
+
   const duplicateTemplate = useCallback(async () => {
     if (isGuest) { showToast("Bitte melden Sie sich an, um Vorlagen zu bearbeiten."); return; }
     const source = getSelectedTemplate(data, selectedTemplateId);
@@ -532,7 +547,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     updateCaseTitle, updateIncludeTitle, updateModuleValue, updateKeyValueRow,
     clearCurrentForm,
     exportData, importData, copyOutput, downloadOutput,
-    createTemplate, duplicateTemplate, deleteTemplate,
+    createTemplate, moveTemplate, duplicateTemplate, deleteTemplate,
     addModule, removeModule, moveModule,
     updateTemplateMeta, updateModuleMeta, addRowToModule, updateModuleRow, removeModuleRow,
     getPreviewText, resolveConflict,

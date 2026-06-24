@@ -8,6 +8,7 @@ export interface TemplateRow {
   document_heading: string | null;
   separator_line: string | null;
   output_title_by_default: number;
+  sort_order: number;
   created_by: number | null;
   created_at: string;
   updated_at: string;
@@ -31,7 +32,7 @@ export interface TemplateWithModules extends TemplateRow {
 
 export async function getAllTemplates(): Promise<TemplateWithModules[]> {
   const templates = await query<TemplateRow[]>(
-    "SELECT * FROM templates ORDER BY name"
+    "SELECT * FROM templates ORDER BY sort_order, name"
   );
   const result: TemplateWithModules[] = [];
 
@@ -80,9 +81,12 @@ export async function createTemplate(
     }[];
   }
 ): Promise<TemplateWithModules> {
+  const maxSortResult = await query<{ max_sort: number | null }[]>("SELECT MAX(sort_order) as max_sort FROM templates");
+  const nextSort = (maxSortResult[0]?.max_sort ?? -1) + 1;
+
   const result = await query<{ insertId: number }>(
-    `INSERT INTO templates (name, title_template, header_text, document_heading, separator_line, output_title_by_default, created_by)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO templates (name, title_template, header_text, document_heading, separator_line, output_title_by_default, sort_order, created_by)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       data.name,
       data.title_template || "Titel:",
@@ -90,6 +94,7 @@ export async function createTemplate(
       data.document_heading || null,
       data.separator_line || null,
       data.output_title_by_default ? 1 : 0,
+      nextSort,
       data.created_by || null,
     ]
   );
@@ -151,6 +156,15 @@ export async function updateTemplate(
 export async function deleteTemplate(id: number): Promise<void> {
   await query("DELETE FROM template_modules WHERE template_id = ?", [id]);
   await query("DELETE FROM templates WHERE id = ?", [id]);
+}
+
+export async function reorderTemplates(templateIds: number[]): Promise<void> {
+  for (let i = 0; i < templateIds.length; i++) {
+    await query(
+      "UPDATE templates SET sort_order = ? WHERE id = ?",
+      [i, templateIds[i]]
+    );
+  }
 }
 
 export async function duplicateTemplate(

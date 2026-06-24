@@ -582,14 +582,13 @@
 }
 
 .template-list-item {
-  width: 100%;
-  text-align: left;
-  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   border-radius: var(--radius-sm);
   background: transparent;
   border: 1px solid transparent;
   transition: background var(--transition), border-color var(--transition);
-  cursor: pointer;
 }
 
 .template-list-item:hover {
@@ -600,6 +599,28 @@
 .template-list-item.active {
   background: var(--accent-dim);
   border-color: var(--accent-border);
+}
+
+.template-list-item-btn {
+  flex: 1;
+  text-align: left;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.template-list-item-arrows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-right: 4px;
+}
+
+.template-list-item-arrows .btn {
+  padding: 2px;
+  line-height: 1;
 }
 
 .template-list-item-name {

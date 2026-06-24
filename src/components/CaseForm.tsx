@@ -36,6 +36,9 @@ export default function CaseForm({ template, formData, onSelectTemplate }: CaseF
           <h2 className="form-header-title">Neue Akte</h2>
         </div>
         <div className="form-header-right">
+          <button type="button" className="btn btn-secondary btn-sm" onClick={clearCurrentForm}>
+            Formular leeren
+          </button>
           <select
             className="template-select-inline"
             value={data.ActiveTemplateId}
@@ -141,12 +144,6 @@ export default function CaseForm({ template, formData, onSelectTemplate }: CaseF
             </div>
           );
         })}
-      </div>
-
-      <div className="form-actions">
-        <button type="button" className="btn btn-secondary" onClick={clearCurrentForm}>
-          Formular leeren
-        </button>
       </div>
 
       {proofreadTarget && (
