@@ -6,8 +6,11 @@ import { connectSocket, disconnectSocket } from "./socket";
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
+  showLogin: boolean;
   login: (identifier: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  requestLogin: () => void;
+  cancelLogin: () => void;
   isAdmin: boolean;
   isTemplateManager: boolean;
 }
@@ -22,6 +25,7 @@ function parseRole(role: string): User["role"] {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
     const savedToken = localStorage.getItem("aktenschreiben_token");
@@ -57,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: res.user.email,
       role: parseRole(res.user.role),
     });
+    setShowLogin(false);
     connectSocket();
   }, []);
 
@@ -72,11 +77,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const requestLogin = useCallback(() => setShowLogin(true), []);
+  const cancelLogin = useCallback(() => setShowLogin(false), []);
+
   const value: AuthContextValue = {
     user,
     loading,
+    showLogin,
     login,
     logout,
+    requestLogin,
+    cancelLogin,
     isAdmin: user?.role === "admin",
     isTemplateManager: user?.role === "admin" || user?.role === "template_manager",
   };

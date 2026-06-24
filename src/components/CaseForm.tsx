@@ -9,7 +9,7 @@ interface CaseFormProps {
 }
 
 export default function CaseForm({ template, formData, onSelectTemplate }: CaseFormProps) {
-  const { data, updateCaseTitle, updateIncludeTitle, updateModuleValue, updateKeyValueRow, saveCurrentDraft, clearCurrentForm } = useApp();
+  const { data, updateCaseTitle, updateIncludeTitle, updateModuleValue, updateKeyValueRow, clearCurrentForm } = useApp();
 
   return (
     <div className="case-form-panel">
@@ -107,9 +107,6 @@ export default function CaseForm({ template, formData, onSelectTemplate }: CaseF
       </div>
 
       <div className="form-actions">
-        <button type="button" className="btn btn-primary" onClick={saveCurrentDraft}>
-          Entwurf speichern
-        </button>
         <button type="button" className="btn btn-secondary" onClick={clearCurrentForm}>
           Formular leeren
         </button>

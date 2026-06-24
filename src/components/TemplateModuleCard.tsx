@@ -2,6 +2,7 @@ import { ArrowUp, ArrowDown, Trash2 } from "lucide-react";
 import type { Module } from "../types";
 import { moduleTypeMap } from "../types";
 import { useApp } from "../store";
+import { useAuth } from "../auth";
 
 interface TemplateModuleCardProps {
   module: Module;
@@ -11,6 +12,7 @@ interface TemplateModuleCardProps {
 
 export default function TemplateModuleCard({ module, index, total }: TemplateModuleCardProps) {
   const { updateModuleMeta, moveModule, removeModule, addRowToModule, updateModuleRow, removeModuleRow } = useApp();
+  const { isTemplateManager } = useAuth();
 
   return (
     <div className="editor-card">
@@ -19,36 +21,38 @@ export default function TemplateModuleCard({ module, index, total }: TemplateMod
           <span className="editor-card-name">{module.Label}</span>
           <span className="editor-card-index">Modul {index + 1}</span>
         </div>
-        <div className="editor-card-actions">
-          <button
-            type="button"
-            className="btn btn-ghost btn-xs"
-            disabled={index === 0}
-            onClick={() => moveModule(index, -1)}
-            title="Nach oben"
-          >
-            <ArrowUp size={14} />
-          </button>
-          <button
-            type="button"
-            className="btn btn-ghost btn-xs"
-            disabled={index === total - 1}
-            onClick={() => moveModule(index, 1)}
-            title="Nach unten"
-          >
-            <ArrowDown size={14} />
-          </button>
-          <button
-            type="button"
-            className="btn btn-ghost btn-xs"
-            style={{ color: "var(--danger)" }}
-            disabled={total <= 1}
-            onClick={() => removeModule(index)}
-            title="Modul löschen"
-          >
-            <Trash2 size={14} />
-          </button>
-        </div>
+        {isTemplateManager && (
+          <div className="editor-card-actions">
+            <button
+              type="button"
+              className="btn btn-ghost btn-xs"
+              disabled={index === 0}
+              onClick={() => moveModule(index, -1)}
+              title="Nach oben"
+            >
+              <ArrowUp size={14} />
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost btn-xs"
+              disabled={index === total - 1}
+              onClick={() => moveModule(index, 1)}
+              title="Nach unten"
+            >
+              <ArrowDown size={14} />
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost btn-xs"
+              style={{ color: "var(--danger)" }}
+              disabled={total <= 1}
+              onClick={() => removeModule(index)}
+              title="Modul löschen"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="editor-grid">
@@ -57,14 +61,16 @@ export default function TemplateModuleCard({ module, index, total }: TemplateMod
           <input
             type="text"
             value={module.Label}
-            onChange={(e) => updateModuleMeta(index, { Label: e.target.value })}
+            onChange={(e) => isTemplateManager && updateModuleMeta(index, { Label: e.target.value })}
+            readOnly={!isTemplateManager}
           />
         </div>
         <div className="field">
           <span className="field-label">Typ</span>
           <select
             value={module.Type}
-            onChange={(e) => updateModuleMeta(index, { Type: e.target.value as Module["Type"] })}
+            onChange={(e) => isTemplateManager && updateModuleMeta(index, { Type: e.target.value as Module["Type"] })}
+            disabled={!isTemplateManager}
           >
             {Object.entries(moduleTypeMap).map(([key, label]) => (
               <option key={key} value={key}>{label}</option>
@@ -79,7 +85,8 @@ export default function TemplateModuleCard({ module, index, total }: TemplateMod
           <textarea
             rows={3}
             value={module.Placeholder}
-            onChange={(e) => updateModuleMeta(index, { Placeholder: e.target.value })}
+            onChange={(e) => isTemplateManager && updateModuleMeta(index, { Placeholder: e.target.value })}
+            readOnly={!isTemplateManager}
           />
         </div>
         <div className="placeholder-preview">
@@ -96,14 +103,16 @@ export default function TemplateModuleCard({ module, index, total }: TemplateMod
           <input
             type="text"
             value={module.BulletPrefix ?? ""}
-            onChange={(e) => updateModuleMeta(index, { BulletPrefix: e.target.value })}
+            onChange={(e) => isTemplateManager && updateModuleMeta(index, { BulletPrefix: e.target.value })}
+            readOnly={!isTemplateManager}
           />
         </div>
         <label className="toggle-row" style={{ paddingTop: "22px" }}>
           <input
             type="checkbox"
             checked={module.RenderHeading}
-            onChange={(e) => updateModuleMeta(index, { RenderHeading: e.target.checked })}
+            onChange={(e) => isTemplateManager && updateModuleMeta(index, { RenderHeading: e.target.checked })}
+            disabled={!isTemplateManager}
           />
           <span>Überschrift ausgeben</span>
         </label>
@@ -117,32 +126,38 @@ export default function TemplateModuleCard({ module, index, total }: TemplateMod
                 type="text"
                 value={row.Label}
                 placeholder="Zeile"
-                onChange={(e) => updateModuleRow(index, rowIndex, { Label: e.target.value })}
+                onChange={(e) => isTemplateManager && updateModuleRow(index, rowIndex, { Label: e.target.value })}
+                readOnly={!isTemplateManager}
               />
               <input
                 type="text"
                 value={row.Unit}
                 placeholder="$ / HE"
-                onChange={(e) => updateModuleRow(index, rowIndex, { Unit: e.target.value })}
+                onChange={(e) => isTemplateManager && updateModuleRow(index, rowIndex, { Unit: e.target.value })}
+                readOnly={!isTemplateManager}
               />
-              <button
-                type="button"
-                className="btn btn-ghost btn-xs"
-                style={{ color: "var(--danger)" }}
-                onClick={() => removeModuleRow(index, rowIndex)}
-                title="Zeile löschen"
-              >
-                <Trash2 size={14} />
-              </button>
+              {isTemplateManager && (
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-xs"
+                  style={{ color: "var(--danger)" }}
+                  onClick={() => removeModuleRow(index, rowIndex)}
+                  title="Zeile löschen"
+                >
+                  <Trash2 size={14} />
+                </button>
+              )}
             </div>
           ))}
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            onClick={() => addRowToModule(index)}
-          >
-            Zeile hinzufügen
-          </button>
+          {isTemplateManager && (
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={() => addRowToModule(index)}
+            >
+              Zeile hinzufügen
+            </button>
+          )}
         </div>
       )}
     </div>

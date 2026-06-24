@@ -3,7 +3,6 @@ import { useAuth } from "./auth";
 import AppLayout from "./components/AppLayout";
 import CaseEditor from "./components/CaseEditor";
 import TemplatePage from "./components/TemplatePage";
-import DraftList from "./components/DraftList";
 import UserManagement from "./components/UserManagement";
 import LoginPage from "./components/LoginPage";
 import Toast from "./components/Toast";
@@ -26,8 +25,6 @@ function Content() {
       return <CaseEditor />;
     case "templates":
       return <TemplatePage />;
-    case "drafts":
-      return <DraftList />;
     case "users":
       return <UserManagement />;
     default:
@@ -65,7 +62,7 @@ function AppInner() {
 }
 
 export default function App() {
-  const { user, loading } = useAuth();
+  const { loading, showLogin, user } = useAuth();
 
   if (loading) {
     return (
@@ -77,7 +74,7 @@ export default function App() {
     );
   }
 
-  if (!user) {
+  if (showLogin && !user) {
     return <LoginPage />;
   }
 

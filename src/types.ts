@@ -3,7 +3,6 @@ export interface AppData {
   Templates: Template[];
   ActiveTemplateId: string;
   Autosaves: Record<string, FormData>;
-  Drafts: Draft[];
 }
 
 export interface Template {
@@ -52,16 +51,7 @@ export interface ModuleValue {
   Rows: Record<string, string>;
 }
 
-export interface Draft {
-  Id: string;
-  Name: string;
-  TemplateId: string;
-  TemplateName: string;
-  Data: FormData;
-  UpdatedAt: string;
-}
-
-export type ViewType = "write" | "templates" | "drafts" | "users";
+export type ViewType = "write" | "templates" | "users";
 
 export type UserRole = "admin" | "template_manager" | "user";
 
@@ -107,15 +97,4 @@ export interface ApiModule {
   show_heading: number;
   rows_json: string | null;
   position: number;
-}
-
-export interface ApiDraft {
-  id: number;
-  user_id: number;
-  template_id: number;
-  title: string;
-  form_data_json: string;
-  template_name?: string;
-  created_at: string;
-  updated_at: string;
 }

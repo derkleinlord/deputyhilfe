@@ -60,20 +60,6 @@ async function migrate() {
   `);
 
   await conn.query(`
-    CREATE TABLE IF NOT EXISTS drafts (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      user_id INT NOT NULL,
-      template_id INT NOT NULL,
-      title VARCHAR(255) NOT NULL DEFAULT '',
-      form_data_json JSON NOT NULL,
-      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-      FOREIGN KEY (template_id) REFERENCES templates(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
-
-  await conn.query(`
     CREATE TABLE IF NOT EXISTS generated_cases (
       id INT AUTO_INCREMENT PRIMARY KEY,
       user_id INT NOT NULL,

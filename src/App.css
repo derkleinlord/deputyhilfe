@@ -1003,6 +1003,22 @@
   font-size: 14px;
 }
 
+.login-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  padding: 4px 0;
+  transition: color var(--transition);
+}
+
+.login-back-btn:hover {
+  color: var(--text-primary);
+}
+
 /* ============ CONFLICT DIALOG ============ */
 
 .conflict-overlay {

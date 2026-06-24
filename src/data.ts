@@ -1,4 +1,4 @@
-import type { AppData, Template, Module, KeyValueRow, FormData, ModuleValue, ModuleType, Draft } from "./types";
+import type { AppData, Template, Module, KeyValueRow, FormData, ModuleValue, ModuleType } from "./types";
 import { moduleTypeMap } from "./types";
 
 export const STORAGE_KEY = "aktenschreiben.web.data.v1";
@@ -33,7 +33,6 @@ export function normalizeAppData(data: AppData | null | undefined): AppData {
       : [createTatakteTemplate(), createAnzeigenTemplate(), createMahnungTemplate(), createGeschaeftspruefungTemplate(), createWochenberichtTemplate(), createAuslagenpruefungTemplate()],
     ActiveTemplateId: data?.ActiveTemplateId || "",
     Autosaves: data?.Autosaves && typeof data.Autosaves === "object" ? data.Autosaves as Record<string, FormData> : {},
-    Drafts: Array.isArray(data?.Drafts) ? data.Drafts as Draft[] : []
   };
 
   const defaultIds = ["tatakte", "anzeige", "mahnung", "geschaeftspruefung", "wochenbericht", "auslagenpruefung"];
@@ -66,15 +65,6 @@ export function normalizeAppData(data: AppData | null | undefined): AppData {
       existing ?? createBlankFormData(template)
     );
   });
-
-  normalized.Drafts = normalized.Drafts.map((draft) => ({
-    Id: draft.Id || createId("draft"),
-    Name: draft.Name || "Unbenannter Entwurf",
-    TemplateId: draft.TemplateId || normalized.ActiveTemplateId,
-    TemplateName: draft.TemplateName || "Vorlage",
-    Data: draft.Data || createBlankFormData(normalized.Templates[0]),
-    UpdatedAt: draft.UpdatedAt || new Date().toISOString()
-  }));
 
   return normalized;
 }
@@ -469,8 +459,7 @@ export function normalizeImportedJson(value: unknown): AppData {
       SchemaVersion: CURRENT_SCHEMA_VERSION,
       Templates: value.map((item) => normalizeTemplate(item as Record<string, unknown>)),
       ActiveTemplateId: (value[0] as Record<string, unknown>)?.Id as string ?? "",
-      Autosaves: {},
-      Drafts: []
+      Autosaves: {}
     };
   }
 
@@ -482,7 +471,6 @@ export function normalizeImportedJson(value: unknown): AppData {
       ),
       ActiveTemplateId: (obj.ActiveTemplateId ?? obj.activeTemplateId ?? "") as string,
       Autosaves: (obj.Autosaves ?? obj.autosaves ?? {}) as Record<string, FormData>,
-      Drafts: (obj.Drafts ?? obj.drafts ?? []) as Draft[]
     };
   }
 
@@ -492,8 +480,7 @@ export function normalizeImportedJson(value: unknown): AppData {
       SchemaVersion: CURRENT_SCHEMA_VERSION,
       Templates: [template],
       ActiveTemplateId: template.Id,
-      Autosaves: {},
-      Drafts: []
+      Autosaves: {}
     };
   }
 

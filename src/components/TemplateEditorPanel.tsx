@@ -1,10 +1,12 @@
 import { Plus } from "lucide-react";
 import { useApp } from "../store";
+import { useAuth } from "../auth";
 import { getSelectedTemplate } from "../data";
 import TemplateModuleCard from "./TemplateModuleCard";
 
 export default function TemplateEditorPanel() {
   const { data, selectedTemplateId, updateTemplateMeta, addModule } = useApp();
+  const { isTemplateManager, requestLogin } = useAuth();
   const template = getSelectedTemplate(data, selectedTemplateId);
 
   if (!template) {
@@ -21,10 +23,16 @@ export default function TemplateEditorPanel() {
     <div className="template-editor-panel">
       <div className="template-editor-header">
         <h3 className="template-editor-title">Vorlage bearbeiten</h3>
-        <button type="button" className="btn btn-primary btn-sm" onClick={addModule}>
-          <Plus size={14} />
-          <span>Modul hinzufügen</span>
-        </button>
+        {isTemplateManager ? (
+          <button type="button" className="btn btn-primary btn-sm" onClick={addModule}>
+            <Plus size={14} />
+            <span>Modul hinzufügen</span>
+          </button>
+        ) : (
+          <button type="button" className="btn btn-secondary btn-sm" onClick={requestLogin}>
+            Anmelden zum Bearbeiten
+          </button>
+        )}
       </div>
 
       <div className="template-editor-grid">
@@ -33,8 +41,9 @@ export default function TemplateEditorPanel() {
           <input
             type="text"
             value={template.Name}
-            onChange={(e) => updateTemplateMeta({ Name: e.target.value })}
+            onChange={(e) => isTemplateManager && updateTemplateMeta({ Name: e.target.value })}
             autoComplete="off"
+            readOnly={!isTemplateManager}
           />
         </div>
         <div className="field">
@@ -42,8 +51,9 @@ export default function TemplateEditorPanel() {
           <input
             type="text"
             value={template.TitleTemplate}
-            onChange={(e) => updateTemplateMeta({ TitleTemplate: e.target.value })}
+            onChange={(e) => isTemplateManager && updateTemplateMeta({ TitleTemplate: e.target.value })}
             autoComplete="off"
+            readOnly={!isTemplateManager}
           />
         </div>
         <div className="field">
@@ -51,8 +61,9 @@ export default function TemplateEditorPanel() {
           <input
             type="text"
             value={template.Header}
-            onChange={(e) => updateTemplateMeta({ Header: e.target.value })}
+            onChange={(e) => isTemplateManager && updateTemplateMeta({ Header: e.target.value })}
             autoComplete="off"
+            readOnly={!isTemplateManager}
           />
         </div>
         <div className="field">
@@ -60,8 +71,9 @@ export default function TemplateEditorPanel() {
           <input
             type="text"
             value={template.Heading}
-            onChange={(e) => updateTemplateMeta({ Heading: e.target.value })}
+            onChange={(e) => isTemplateManager && updateTemplateMeta({ Heading: e.target.value })}
             autoComplete="off"
+            readOnly={!isTemplateManager}
           />
         </div>
       </div>
@@ -71,7 +83,8 @@ export default function TemplateEditorPanel() {
           <input
             type="checkbox"
             checked={template.IncludeTitleByDefault}
-            onChange={(e) => updateTemplateMeta({ IncludeTitleByDefault: e.target.checked })}
+            onChange={(e) => isTemplateManager && updateTemplateMeta({ IncludeTitleByDefault: e.target.checked })}
+            disabled={!isTemplateManager}
           />
           <span>Titel standardmäßig ausgeben</span>
         </label>
@@ -80,8 +93,9 @@ export default function TemplateEditorPanel() {
           <input
             type="text"
             value={template.Separator}
-            onChange={(e) => updateTemplateMeta({ Separator: e.target.value })}
+            onChange={(e) => isTemplateManager && updateTemplateMeta({ Separator: e.target.value })}
             autoComplete="off"
+            readOnly={!isTemplateManager}
           />
         </div>
       </div>

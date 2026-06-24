@@ -7,7 +7,7 @@ const viewLabels: Record<string, string> = {
   write: "Akte schreiben",
   templates: "Vorlagen bearbeiten",
   drafts: "Entwürfe",
-  users: "Benutzerverwaltung",
+  users: "Admin",
 };
 
 export default function Topbar() {
@@ -33,7 +33,7 @@ export default function Topbar() {
   return (
     <header className="topbar">
       <div className="topbar-left">
-        <span className="topbar-title">{viewLabels[activeView] ?? "Aktenschreiben"}</span>
+        <span className="topbar-title">{viewLabels[activeView] ?? "Deputy Hilfe"}</span>
       </div>
       <div className="topbar-right">
         {isTemplateManager && (

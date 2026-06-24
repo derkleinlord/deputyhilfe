@@ -1,9 +1,9 @@
 import { useState, type FormEvent } from "react";
-import { Shield } from "lucide-react";
+import { Shield, ArrowLeft } from "lucide-react";
 import { useAuth } from "../auth";
 
 export default function LoginPage() {
-  const { login, loading: authLoading } = useAuth();
+  const { login, cancelLogin, loading: authLoading } = useAuth();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -25,11 +25,20 @@ export default function LoginPage() {
   return (
     <div className="login-page">
       <div className="login-card">
+        <button
+          type="button"
+          className="login-back-btn"
+          onClick={cancelLogin}
+        >
+          <ArrowLeft size={14} />
+          <span>Zurück zur Anwendung</span>
+        </button>
+
         <div className="login-header">
           <div className="login-icon">
             <Shield size={28} />
           </div>
-          <h1 className="login-title">Aktenschreiben</h1>
+          <h1 className="login-title">Deputy Hilfe</h1>
           <p className="login-subtitle">Anmeldung</p>
         </div>
 
