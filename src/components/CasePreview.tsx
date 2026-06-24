@@ -1,5 +1,63 @@
+import type { ReactNode } from "react";
 import { Copy, FileDown } from "lucide-react";
 import { useApp } from "../store";
+
+function renderMarkdown(text: string): ReactNode[] {
+  const lines = text.split("\n");
+  const elements: ReactNode[] = [];
+  let key = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    if (line.trim() === "") {
+      continue;
+    }
+
+    if (/^-{10,}$/.test(line.trim())) {
+      elements.push(<hr key={key++} />);
+      continue;
+    }
+
+    const headingMatch = line.match(/^__\*\*(.+)\*\*__$/);
+    if (headingMatch) {
+      elements.push(
+        <p key={key++} className="preview-section-heading">
+          <strong>{headingMatch[1]}</strong>
+        </p>
+      );
+      continue;
+    }
+
+    if (line.startsWith("- ") || line.startsWith("-")) {
+      const items: string[] = [];
+      while (i < lines.length) {
+        const l = lines[i];
+        if (l.startsWith("- ")) {
+          items.push(l.slice(2));
+        } else if (l.startsWith("-") && !l.startsWith("--")) {
+          items.push(l.slice(1));
+        } else {
+          break;
+        }
+        i++;
+      }
+      i--;
+      elements.push(
+        <ul key={key++}>
+          {items.map((item, idx) => (
+            <li key={idx}>{item}</li>
+          ))}
+        </ul>
+      );
+      continue;
+    }
+
+    elements.push(<p key={key++}>{line}</p>);
+  }
+
+  return elements;
+}
 
 export default function CasePreview() {
   const { getPreviewText, copyOutput, downloadOutput } = useApp();
@@ -21,7 +79,7 @@ export default function CasePreview() {
             </button>
           </div>
         </div>
-        <pre className="case-output">{previewText}</pre>
+        <div className="case-output">{renderMarkdown(previewText)}</div>
       </div>
     </div>
   );

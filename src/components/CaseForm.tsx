@@ -20,7 +20,7 @@ export default function CaseForm({ template, formData, onSelectTemplate }: CaseF
         </div>
         <div className="form-header-right">
           <select
-            className="field template-select-inline"
+            className="template-select-inline"
             value={data.ActiveTemplateId}
             onChange={(e) => onSelectTemplate(e.target.value)}
             aria-label="Vorlage auswählen"
