@@ -61,4 +61,61 @@ export interface Draft {
   UpdatedAt: string;
 }
 
-export type ViewType = "write" | "templates" | "drafts";
+export type ViewType = "write" | "templates" | "drafts" | "users";
+
+export type UserRole = "admin" | "template_manager" | "user";
+
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  role: UserRole;
+  is_active?: number;
+  created_at?: string;
+  updated_at?: string;
+  last_login_at?: string | null;
+}
+
+export interface AuthState {
+  user: User | null;
+  token: string | null;
+  loading: boolean;
+}
+
+// API-compatible template types
+export interface ApiTemplate {
+  id: number;
+  name: string;
+  title_template: string;
+  header_text: string | null;
+  document_heading: string | null;
+  separator_line: string | null;
+  output_title_by_default: number;
+  created_by: number | null;
+  created_at: string;
+  updated_at: string;
+  modules: ApiModule[];
+}
+
+export interface ApiModule {
+  id: number;
+  template_id: number;
+  label: string;
+  field_type: ModuleType;
+  placeholder: string | null;
+  bullet_prefix: string | null;
+  show_heading: number;
+  rows_json: string | null;
+  position: number;
+}
+
+export interface ApiDraft {
+  id: number;
+  user_id: number;
+  template_id: number;
+  title: string;
+  form_data_json: string;
+  template_name?: string;
+  created_at: string;
+  updated_at: string;
+}
