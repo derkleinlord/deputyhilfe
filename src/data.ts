@@ -39,7 +39,7 @@ export function normalizeAppData(data: AppData | null | undefined): AppData {
     !normalized.ActiveTemplateId ||
     !normalized.Templates.some((t) => t.Id === normalized.ActiveTemplateId)
   ) {
-    normalized.ActiveTemplateId = normalized.Templates[0].Id;
+    normalized.ActiveTemplateId = normalized.Templates[0]?.Id ?? "";
   }
 
   normalized.Templates.forEach((template) => {

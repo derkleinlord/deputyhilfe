@@ -12,6 +12,7 @@ import userRoutes from "./routes/users.js";
 import templateRoutes from "./routes/templates.js";
 import moduleRoutes from "./routes/modules.js";
 import aiRoutes from "./routes/ai.js";
+import telegramListRoutes from "./routes/telegramLists.js";
 
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -34,6 +35,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/templates", templateRoutes);
 app.use("/api/templates", moduleRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/telegram-lists", telegramListRoutes);
 
 
 // Serve frontend in production

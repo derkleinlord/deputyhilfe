@@ -8,6 +8,7 @@ const viewLabels: Record<string, string> = {
   templates: "Vorlagen bearbeiten",
   drafts: "Entwürfe",
   users: "Admin",
+  telegramlists: "Telegrammlisten",
 };
 
 export default function Topbar() {

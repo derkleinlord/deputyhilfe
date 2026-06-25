@@ -4,6 +4,7 @@ import AppLayout from "./components/AppLayout";
 import CaseEditor from "./components/CaseEditor";
 import TemplatePage from "./components/TemplatePage";
 import UserManagement from "./components/UserManagement";
+import TelegramListsPage from "./components/TelegramListsPage";
 import LoginPage from "./components/LoginPage";
 import Toast from "./components/Toast";
 import "./App.css";
@@ -26,6 +27,8 @@ function Content() {
       return <TemplatePage />;
     case "users":
       return <UserManagement />;
+    case "telegramlists":
+      return <TelegramListsPage />;
     default:
       return <CaseEditor />;
   }

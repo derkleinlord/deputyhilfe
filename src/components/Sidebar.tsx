@@ -1,4 +1,4 @@
-import { FileText, BookTemplate, Shield, LogOut, Users, LogIn } from "lucide-react";
+import { FileText, BookTemplate, Shield, LogOut, Users, LogIn, Send } from "lucide-react";
 import { useApp } from "../store";
 import { useAuth } from "../auth";
 import type { ViewType } from "../types";
@@ -6,6 +6,7 @@ import type { ViewType } from "../types";
 const navItems: { view: ViewType; label: string; icon: typeof FileText; auth: boolean }[] = [
   { view: "write", label: "Akte schreiben", icon: FileText, auth: false },
   { view: "templates", label: "Vorlagen", icon: BookTemplate, auth: true },
+  { view: "telegramlists", label: "Telegrammlisten", icon: Send, auth: true },
 ];
 
 export default function Sidebar() {

@@ -52,7 +52,7 @@ export interface ModuleValue {
   Rows: Record<string, string>;
 }
 
-export type ViewType = "write" | "templates" | "users";
+export type ViewType = "write" | "templates" | "users" | "telegramlists";
 
 export type UserRole = "admin" | "template_manager" | "user";
 
@@ -111,4 +111,48 @@ export interface ApiModule {
   show_heading: number;
   rows_json: string | null;
   position: number;
+}
+
+export interface TelegramList {
+  id: number;
+  name: string;
+  owner_id: number;
+  owner_name: string;
+  access_type: "owner" | "shared_with_me" | "shared_with_group" | "public";
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TelegramEntry {
+  id: number;
+  list_id: number;
+  name: string;
+  tg_number: string;
+  company: string | null;
+  note: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TelegramShare {
+  id: number;
+  list_id: number;
+  shared_with_user_id: number | null;
+  shared_with_username: string | null;
+  group_name: string | null;
+  shared_with_all: number;
+  created_at: string;
+}
+
+export interface TelegramGroupMember {
+  id: number;
+  group_name: string;
+  user_id: number;
+  created_at: string;
+}
+
+export interface TelegramUserBrief {
+  id: number;
+  username: string;
 }
