@@ -16,7 +16,6 @@ async function migrate() {
     CREATE TABLE IF NOT EXISTS users (
       id INT AUTO_INCREMENT PRIMARY KEY,
       username VARCHAR(100) NOT NULL UNIQUE,
-      email VARCHAR(255) NOT NULL UNIQUE,
       password_hash VARCHAR(255) NOT NULL,
       role ENUM('admin','template_manager','user') NOT NULL DEFAULT 'user',
       is_active TINYINT(1) NOT NULL DEFAULT 1,
@@ -123,6 +122,8 @@ async function migrate() {
       UNIQUE KEY uk_group_user (group_name, user_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
+
+  await conn.query(`ALTER TABLE users DROP COLUMN IF EXISTS email`);
 
   console.log("Migration completed successfully.");
   await conn.end();

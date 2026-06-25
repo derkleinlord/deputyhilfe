@@ -7,7 +7,6 @@ import type { JwtPayload } from "../middleware/auth.js";
 export interface UserRow {
   id: number;
   username: string;
-  email: string;
   password_hash: string;
   role: "admin" | "template_manager" | "user";
   is_active: number;
@@ -15,8 +14,8 @@ export interface UserRow {
 
 export async function login(identifier: string, password: string) {
   const users = await query<UserRow[]>(
-    "SELECT * FROM users WHERE (username = ? OR email = ?) AND is_active = 1",
-    [identifier, identifier]
+    "SELECT * FROM users WHERE username = ? AND is_active = 1",
+    [identifier]
   );
 
   const user = users[0];
@@ -46,7 +45,6 @@ export async function login(identifier: string, password: string) {
     user: {
       id: user.id,
       username: user.username,
-      email: user.email,
       role: user.role,
     },
   };

@@ -36,7 +36,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser({
             id: res.user.userId,
             username: res.user.username,
-            email: "",
             role: parseRole(res.user.role),
           });
           connectSocket();
@@ -58,7 +57,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser({
       id: res.user.id,
       username: res.user.username,
-      email: res.user.email,
       role: parseRole(res.user.role),
     });
     setShowLogin(false);

@@ -5,7 +5,7 @@ export async function login(req: Request, res: Response): Promise<void> {
   try {
     const { identifier, password } = req.body;
     if (!identifier || !password) {
-      res.status(400).json({ error: "Benutzername/E-Mail und Passwort erforderlich." });
+      res.status(400).json({ error: "Benutzername und Passwort erforderlich." });
       return;
     }
 

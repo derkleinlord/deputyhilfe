@@ -44,7 +44,7 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="field">
-            <span className="field-label">Benutzername oder E-Mail</span>
+            <span className="field-label">Benutzername</span>
             <input
               type="text"
               value={identifier}

@@ -29,9 +29,9 @@ export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ username: "", email: "", password: "", role: "user" as UserRole });
+  const [form, setForm] = useState({ username: "", password: "", role: "user" as UserRole });
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState<{ username: string; email: string; role: UserRole }>({ username: "", email: "", role: "user" });
+  const [editForm, setEditForm] = useState<{ username: string; role: UserRole }>({ username: "", role: "user" });
 
   const loadUsers = useCallback(async () => {
     try {
@@ -52,7 +52,7 @@ export default function UserManagement() {
     try {
       await api.post("/api/users", form);
       setShowCreate(false);
-      setForm({ username: "", email: "", password: "", role: "user" });
+      setForm({ username: "", password: "", role: "user" });
       loadUsers();
     } catch (err) {
       alert((err as Error).message);
@@ -80,7 +80,7 @@ export default function UserManagement() {
 
   const startEditing = (u: User) => {
     setEditingId(u.id);
-    setEditForm({ username: u.username, email: u.email, role: u.role });
+    setEditForm({ username: u.username, role: u.role });
   };
 
   const cancelEditing = () => {
@@ -135,10 +135,6 @@ export default function UserManagement() {
               <input type="text" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} required />
             </div>
             <div className="field">
-              <span className="field-label">E-Mail</span>
-              <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
-            </div>
-            <div className="field">
               <span className="field-label">Passwort</span>
               <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
             </div>
@@ -173,10 +169,6 @@ export default function UserManagement() {
                       <span className="field-label">Name</span>
                       <input type="text" value={editForm.username} onChange={(e) => setEditForm({ ...editForm, username: e.target.value })} />
                     </div>
-                    <div className="field" style={{ flex: "1 1 160px", minWidth: "140px" }}>
-                      <span className="field-label">E-Mail</span>
-                      <input type="email" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} />
-                    </div>
                     <div className="field" style={{ flex: "0 1 150px", minWidth: "120px" }}>
                       <span className="field-label">Rolle</span>
                       <select value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value as UserRole })}>
@@ -190,7 +182,6 @@ export default function UserManagement() {
                       {u.username}
                       {u.id === user?.id && <span style={{ color: "var(--accent)", marginLeft: "8px", fontSize: "11px" }}>(Sie)</span>}
                     </div>
-                    <div style={{ color: "var(--text-muted)", fontSize: "12px" }}>{u.email}</div>
                   </div>
                 )}
               </div>

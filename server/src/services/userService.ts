@@ -4,7 +4,6 @@ import { query } from "../db.js";
 export interface UserRecord {
   id: number;
   username: string;
-  email: string;
   role: string;
   is_active: number;
   created_at: string;
@@ -14,13 +13,13 @@ export interface UserRecord {
 
 export async function getAllUsers(): Promise<UserRecord[]> {
   return query<UserRecord[]>(
-    "SELECT id, username, email, role, is_active, created_at, updated_at, last_login_at FROM users ORDER BY username"
+    "SELECT id, username, role, is_active, created_at, updated_at, last_login_at FROM users ORDER BY username"
   );
 }
 
 export async function getUserById(id: number): Promise<UserRecord | null> {
   const users = await query<UserRecord[]>(
-    "SELECT id, username, email, role, is_active, created_at, updated_at, last_login_at FROM users WHERE id = ?",
+    "SELECT id, username, role, is_active, created_at, updated_at, last_login_at FROM users WHERE id = ?",
     [id]
   );
   return users[0] || null;
@@ -28,22 +27,21 @@ export async function getUserById(id: number): Promise<UserRecord | null> {
 
 export async function createUser(
   username: string,
-  email: string,
   password: string,
   role: string
 ): Promise<UserRecord> {
   const existing = await query<UserRecord[]>(
-    "SELECT id FROM users WHERE username = ? OR email = ?",
-    [username, email]
+    "SELECT id FROM users WHERE username = ?",
+    [username]
   );
   if (existing.length > 0) {
-    throw new Error("Benutzername oder E-Mail existiert bereits.");
+    throw new Error("Benutzername existiert bereits.");
   }
 
   const hash = await bcrypt.hash(password, 12);
   const result = await query<{ insertId: number }>(
-    "INSERT INTO users (username, email, password_hash, role) VALUES (?, ?, ?, ?)",
-    [username, email, hash, role]
+    "INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)",
+    [username, hash, role]
   );
 
   const user = await getUserById(result.insertId);
@@ -53,7 +51,7 @@ export async function createUser(
 
 export async function updateUser(
   id: number,
-  updates: Partial<{ username: string; email: string; password: string; role: string; is_active: number }>
+  updates: Partial<{ username: string; password: string; role: string; is_active: number }>
 ): Promise<UserRecord | null> {
   const sets: string[] = [];
   const params: unknown[] = [];
@@ -61,10 +59,6 @@ export async function updateUser(
   if (updates.username !== undefined) {
     sets.push("username = ?");
     params.push(updates.username);
-  }
-  if (updates.email !== undefined) {
-    sets.push("email = ?");
-    params.push(updates.email);
   }
   if (updates.password !== undefined) {
     const hash = await bcrypt.hash(updates.password, 12);

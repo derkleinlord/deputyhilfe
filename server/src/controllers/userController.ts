@@ -25,12 +25,12 @@ export async function getById(req: Request, res: Response): Promise<void> {
 
 export async function create(req: Request, res: Response): Promise<void> {
   try {
-    const { username, email, password, role } = req.body;
-    if (!username || !email || !password) {
-      res.status(400).json({ error: "Benutzername, E-Mail und Passwort erforderlich." });
+    const { username, password, role } = req.body;
+    if (!username || !password) {
+      res.status(400).json({ error: "Benutzername und Passwort erforderlich." });
       return;
     }
-    const user = await userService.createUser(username, email, password, role || "user");
+    const user = await userService.createUser(username, password, role || "user");
     res.status(201).json(user);
   } catch (error) {
     res.status(400).json({ error: (error as Error).message });

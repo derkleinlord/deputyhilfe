@@ -59,7 +59,6 @@ export type UserRole = "admin" | "template_manager" | "user";
 export interface User {
   id: number;
   username: string;
-  email: string;
   role: UserRole;
   is_active?: number;
   created_at?: string;

@@ -10,8 +10,8 @@ async function seed() {
 
   const hash = await bcrypt.hash("admin123", 12);
   await query(
-    "INSERT INTO users (username, email, password_hash, role) VALUES (?, ?, ?, ?)",
-    ["admin", "admin@aktenschreiben.local", hash, "admin"]
+    "INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)",
+    ["admin", hash, "admin"]
   );
   console.log("Default admin user created: admin / admin123");
   process.exit(0);
